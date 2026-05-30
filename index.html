@@ -151,13 +151,13 @@ const I18N={
     statDaily:"Daily loss", statDailySub:(l,t)=>"limit "+l+" · today "+t,
     statDD:"Max drawdown", statDDSub:(f,t)=>"floor "+f+" ("+t+")", ddStatic:"static", ddTrailing:"trailing",
     statTarget:"Target", targetMet:"✓ reached", targetLeft:x=>x+" to go",
-    opsTitle:"Trades", todayCount:(c,l)=>"Today: "+c+"/"+l, pairPh:"Pair (optional)", valuePh:"€ amount", newDay:"↻ New day",
+    opsTitle:"Trades", todayCount:(c,l)=>"Today: "+c+"/"+l, pairPh:"Pair (optional)", valuePh:"Amount", newDay:"↻ New day",
     noTrades:"No trades yet. Add one above.",
-    preTitle:"Pre-trade calculator", riskLabel:"Risk on this trade (€ lost if SL is hit)", riskPh:"e.g. 200",
+    preTitle:"Pre-trade calculator", riskLabel:"Risk on this trade (lost if SL is hit)", riskPh:"e.g. 200",
     verdictNo:a=>"⚠ DANGER: this could blow you. Room after: "+a, verdictOk:a=>"OK. Room left after: "+a,
     editRules:"Edit rules", delChallenge:"Delete challenge", confirmDel:"Delete this challenge?", alertAmount:"Enter the trade amount.",
     formEdit:"Edit challenge", formNew:"New challenge", fName:"Name / firm", fNamePh:"e.g. The5% 50k",
-    fSize:"Account size (€)", fTarget:"Profit target (%)", fDaily:"Daily loss (%)", fOverall:"Max total drawdown (%)",
+    fSize:"Account size", fTarget:"Profit target (%)", fDaily:"Daily loss (%)", fOverall:"Max total drawdown (%)",
     fTradeLimit:"Trades per day (consistency goal)", fDDType:"Drawdown type",
     save:"Save", create:"Create challenge", cancel:"Cancel", alertFields:"Fill in all numeric fields.",
     coachBadge:"Consistency", coachBtn:"Got it, I'll stop",
@@ -166,13 +166,13 @@ const I18N={
     coachStop:n=>"Stop. "+n+" trades today. You're not following a plan, you're chasing the market. This is how funded accounts blow up.",
     proSub:"Protect what you already paid for.",
     proF1T:"Auto-connect", proF1D:"Connects to your MT5 or cTrader and follows your equity live. You log nothing by hand.",
-    proF2T:"Real-time alerts", proF2D:'A heads-up the second it matters: "you\'re €X from blowing up", before the dumb click.',
+    proF2T:"Real-time alerts", proF2D:'A heads-up the second it matters: "you\'re $X from blowing up", before the dumb click.',
     proF3T:"Consolidated multi-account", proF3D:"All your challenges and funded accounts in one panel, with combined risk.",
     proPriceNote:"less than the cost of blowing a single challenge", perMonth:"/mo",
     proCta:"Notify me at launch", proClose:"Not now", proAlert:"Set FORM_ENDPOINT in the code with your Formspree link.",
     calBanner:"📅 Economic calendar", calBannerSub:"today's high-impact news", calTitle:"Economic calendar", calNote:"High-impact news means volatility. Check it before you trade. It can blow your stops.",
     proF4T:"News-aware alerts", proF4D:"The guardian warns you before high-impact news, tied to your live risk. Not just a calendar you open yourself.",
-    emailPh:"your@email.com", emailSend:"Send", emailDone:"Done. We'll let you know at launch.", emailInvalid:"Enter a valid email.", emailErr:"Couldn't send. Try again."
+    emailPh:"your@email.com", emailSend:"Send", emailDone:"Done. We'll let you know at launch.", emailInvalid:"Enter a valid email.", emailErr:"Couldn't send. Try again.", fCurrency:"Account currency"
   },
   pt:{
     subtitle:"guardião de prop firm", addChallenge:"+ Desafio",
@@ -185,13 +185,13 @@ const I18N={
     statDaily:"Perda diária", statDailySub:(l,t)=>"limite "+l+" · hoje "+t,
     statDD:"Drawdown máx", statDDSub:(f,t)=>"piso "+f+" ("+t+")", ddStatic:"estático", ddTrailing:"trailing",
     statTarget:"Meta", targetMet:"✓ atingida", targetLeft:x=>"faltam "+x,
-    opsTitle:"Operações", todayCount:(c,l)=>"Hoje: "+c+"/"+l, pairPh:"Par (opcional)", valuePh:"€ valor", newDay:"↻ Novo dia",
+    opsTitle:"Operações", todayCount:(c,l)=>"Hoje: "+c+"/"+l, pairPh:"Par (opcional)", valuePh:"Valor", newDay:"↻ Novo dia",
     noTrades:"Nenhuma operação ainda. Adicione acima.",
-    preTitle:"Calculadora pré-trade", riskLabel:"Risco desta operação (€ que perde se bater o stop)", riskPh:"ex: 200",
+    preTitle:"Calculadora pré-trade", riskLabel:"Risco desta operação (quanto perde se bater o stop)", riskPh:"ex: 200",
     verdictNo:a=>"⚠ PERIGO: pode te estourar. Margem após: "+a, verdictOk:a=>"OK. Margem restante após: "+a,
     editRules:"Editar regras", delChallenge:"Apagar desafio", confirmDel:"Apagar este desafio?", alertAmount:"Informe o valor da operação.",
     formEdit:"Editar desafio", formNew:"Novo desafio", fName:"Nome / firma", fNamePh:"ex: The5% 50k",
-    fSize:"Tamanho da conta (€)", fTarget:"Meta de lucro (%)", fDaily:"Perda diária (%)", fOverall:"Drawdown máx total (%)",
+    fSize:"Tamanho da conta", fTarget:"Meta de lucro (%)", fDaily:"Perda diária (%)", fOverall:"Drawdown máx total (%)",
     fTradeLimit:"Operações por dia (meta de consistência)", fDDType:"Tipo de drawdown",
     save:"Salvar", create:"Criar desafio", cancel:"Cancelar", alertFields:"Preencha todos os campos numéricos.",
     coachBadge:"Consistência", coachBtn:"Entendi, vou parar",
@@ -200,13 +200,13 @@ const I18N={
     coachStop:n=>"Para. "+n+" operações hoje. Você não está seguindo um plano, está perseguindo o mercado. É assim que conta funded estoura.",
     proSub:"Proteja o que você já pagou.",
     proF1T:"Conexão automática", proF1D:"Conecta no seu MT5 ou cTrader e acompanha seu equity ao vivo. Você não digita operação nenhuma.",
-    proF2T:"Alertas em tempo real", proF2D:'Um aviso na hora certa: "você está a €X de estourar", antes do clique burro.',
+    proF2T:"Alertas em tempo real", proF2D:'Um aviso na hora certa: "você está a $X de estourar", antes do clique burro.',
     proF3T:"Multi-conta consolidada", proF3D:"Todos os seus desafios e contas funded num painel só, com risco somado.",
     proPriceNote:"menos que o custo de estourar um único desafio", perMonth:"/mês",
     proCta:"Quero ser avisado no lançamento", proClose:"Agora não", proAlert:"Defina FORM_ENDPOINT no código com o link do seu Formspree.",
     calBanner:"📅 Calendário econômico", calBannerSub:"as notícias de alto impacto do dia", calTitle:"Calendário econômico", calNote:"Notícia de alto impacto é volatilidade. Confira antes de operar. Pode estourar seus stops.",
     proF4T:"Alertas de notícia", proF4D:"O guardião te avisa antes da notícia de alto impacto, ligado ao seu risco ao vivo. Não é só um calendário que você abre sozinho.",
-    emailPh:"seu@email.com", emailSend:"Enviar", emailDone:"Pronto. Vamos te avisar no lançamento.", emailInvalid:"Digite um e-mail válido.", emailErr:"Não deu pra enviar. Tente de novo."
+    emailPh:"seu@email.com", emailSend:"Enviar", emailDone:"Pronto. Vamos te avisar no lançamento.", emailInvalid:"Digite um e-mail válido.", emailErr:"Não deu pra enviar. Tente de novo.", fCurrency:"Moeda da conta"
   },
   es:{
     subtitle:"guardián de prop firm", addChallenge:"+ Desafío",
@@ -219,13 +219,13 @@ const I18N={
     statDaily:"Pérdida diaria", statDailySub:(l,t)=>"límite "+l+" · hoy "+t,
     statDD:"Drawdown máx", statDDSub:(f,t)=>"piso "+f+" ("+t+")", ddStatic:"estático", ddTrailing:"trailing",
     statTarget:"Meta", targetMet:"✓ alcanzada", targetLeft:x=>"faltan "+x,
-    opsTitle:"Operaciones", todayCount:(c,l)=>"Hoy: "+c+"/"+l, pairPh:"Par (opcional)", valuePh:"€ valor", newDay:"↻ Nuevo día",
+    opsTitle:"Operaciones", todayCount:(c,l)=>"Hoy: "+c+"/"+l, pairPh:"Par (opcional)", valuePh:"Valor", newDay:"↻ Nuevo día",
     noTrades:"Ninguna operación todavía. Agrega arriba.",
-    preTitle:"Calculadora pre-trade", riskLabel:"Riesgo de esta operación (€ que pierdes si toca el stop)", riskPh:"ej: 200",
+    preTitle:"Calculadora pre-trade", riskLabel:"Riesgo de esta operación (lo que pierdes si toca el stop)", riskPh:"ej: 200",
     verdictNo:a=>"⚠ PELIGRO: puede reventarte. Margen después: "+a, verdictOk:a=>"OK. Margen restante después: "+a,
     editRules:"Editar reglas", delChallenge:"Eliminar desafío", confirmDel:"¿Eliminar este desafío?", alertAmount:"Ingresa el valor de la operación.",
     formEdit:"Editar desafío", formNew:"Nuevo desafío", fName:"Nombre / firma", fNamePh:"ej: The5% 50k",
-    fSize:"Tamaño de la cuenta (€)", fTarget:"Meta de ganancia (%)", fDaily:"Pérdida diaria (%)", fOverall:"Drawdown máx total (%)",
+    fSize:"Tamaño de la cuenta", fTarget:"Meta de ganancia (%)", fDaily:"Pérdida diaria (%)", fOverall:"Drawdown máx total (%)",
     fTradeLimit:"Operaciones por día (meta de consistencia)", fDDType:"Tipo de drawdown",
     save:"Guardar", create:"Crear desafío", cancel:"Cancelar", alertFields:"Completa todos los campos numéricos.",
     coachBadge:"Consistencia", coachBtn:"Entendido, voy a parar",
@@ -234,13 +234,13 @@ const I18N={
     coachStop:n=>"Para. "+n+" operaciones hoy. No estás siguiendo un plan, estás persiguiendo al mercado. Así es como revientan las cuentas funded.",
     proSub:"Protege lo que ya pagaste.",
     proF1T:"Conexión automática", proF1D:"Se conecta a tu MT5 o cTrader y sigue tu equity en vivo. No registras operaciones a mano.",
-    proF2T:"Alertas en tiempo real", proF2D:'Un aviso en el momento justo: "estás a €X de reventar", antes del clic tonto.',
+    proF2T:"Alertas en tiempo real", proF2D:'Un aviso en el momento justo: "estás a $X de reventar", antes del clic tonto.',
     proF3T:"Multicuenta consolidada", proF3D:"Todos tus desafíos y cuentas funded en un panel, con riesgo combinado.",
     proPriceNote:"menos que el costo de reventar un solo desafío", perMonth:"/mes",
     proCta:"Avísame en el lanzamiento", proClose:"Ahora no", proAlert:"Define FORM_ENDPOINT en el código con el enlace de tu Formspree.",
     calBanner:"📅 Calendario económico", calBannerSub:"las noticias de alto impacto del día", calTitle:"Calendario económico", calNote:"Noticia de alto impacto es volatilidad. Revisa antes de operar. Puede reventar tus stops.",
     proF4T:"Alertas de noticias", proF4D:"El guardián te avisa antes de la noticia de alto impacto, ligado a tu riesgo en vivo. No es solo un calendario que revisas tú mismo.",
-    emailPh:"tu@email.com", emailSend:"Enviar", emailDone:"Listo. Te avisamos en el lanzamiento.", emailInvalid:"Ingresa un correo válido.", emailErr:"No se pudo enviar. Inténtalo de nuevo."
+    emailPh:"tu@email.com", emailSend:"Enviar", emailDone:"Listo. Te avisamos en el lanzamiento.", emailInvalid:"Ingresa un correo válido.", emailErr:"No se pudo enviar. Inténtalo de nuevo.", fCurrency:"Moneda de la cuenta"
   }
 };
 function loadLang(){
@@ -263,13 +263,15 @@ function loadState(){
     if(c.dailyTradeLimit==null) c.dailyTradeLimit=2;
     if(c.dayStartEquity==null) c.dayStartEquity=c.size;
     if(c.dayStartTs==null) c.dayStartTs=c.trades.length?c.trades[0].ts:Date.now();
+    if(c.cur==null) c.cur="$";
   });
   return s;
 }
 function save(){ try{ localStorage.setItem(KEY,JSON.stringify(state)); }catch(e){ console.warn(e); } }
 const uid=()=>Math.random().toString(36).slice(2,9);
-const fmt=n=>"€"+Math.round(n).toLocaleString("en-US");
-const fmtSigned=n=>(n>=0?"+":"−")+"€"+Math.abs(Math.round(n)).toLocaleString("en-US");
+let CUR="$";
+const fmt=n=>CUR+Math.round(n).toLocaleString("en-US");
+const fmtSigned=n=>(n>=0?"+":"−")+CUR+Math.abs(Math.round(n)).toLocaleString("en-US");
 function esc(s){return (s||"").replace(/[&<>"]/g,m=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[m]));}
 function dt(ts){ const d=new Date(ts); return d.toLocaleDateString(lang,{day:"2-digit",month:"2-digit"})+" "+d.toLocaleTimeString(lang,{hour:"2-digit",minute:"2-digit"}); }
 
@@ -316,7 +318,7 @@ function renderChrome(){
 /* Inscrição na waitlist via MailerLite (form embed, double opt-in ligado).
    Envia direto pro endpoint do formulário com um form oculto: sem chave exposta e sem CORS. */
 const ML_ACTION="https://assets.mailerlite.com/jsonp/2390568/forms/188885421462128381/subscribe";
-const PRO_PRICE="€6.99";
+const PRO_PRICE="$6.99";
 function submitInterest(email){
   return new Promise(resolve=>{
     try{
@@ -384,7 +386,7 @@ function render(){
   const list=document.getElementById("list"); list.innerHTML="";
   if(!state.challenges.length){ list.innerHTML='<div class="empty"><b>'+t("emptyTitle")+'</b><br>'+t("emptyHint")+'</div>'; return; }
   state.challenges.forEach(c=>{
-    const g=guardian(c);
+    const g=guardian(c); CUR=c.cur||"$";
     const el=document.createElement("div"); el.className="card "+g.status; el.onclick=()=>openDetail(c.id);
     el.innerHTML='<div class="ctop"><span class="cname">'+esc(c.name)+'</span><span class="csize mono">'+fmt(g.equity)+' / '+fmt(c.size)+'</span></div>'+
       '<div class="room-lbl">'+(g.breached?t("cardBreached"):t("cardRoom"))+'</div>'+
@@ -397,6 +399,7 @@ function render(){
 
 function openDetail(id){
   const c=state.challenges.find(x=>x.id===id); if(!c.trades)c.trades=[];
+  CUR=c.cur||"$";
   const g=guardian(c); const tc=todayCount(c); const hit=tc>=c.dailyTradeLimit;
   const ddTypeLabel=c.ddType==="trailing"?t("ddTrailing"):t("ddStatic");
   const tradesHtml=c.trades.length
@@ -455,6 +458,7 @@ function openForm(id){
     '<div class="row"><div><label>'+t("fTarget")+'</label><input class="mono" id="f_target" type="number" inputmode="decimal" value="'+v("targetPct","")+'" placeholder="10"></div>'+
       '<div><label>'+t("fDaily")+'</label><input class="mono" id="f_daily" type="number" inputmode="decimal" value="'+v("dailyPct","")+'" placeholder="5"></div></div>'+
     '<label>'+t("fOverall")+'</label><input class="mono" id="f_overall" type="number" inputmode="decimal" value="'+v("overallPct","")+'" placeholder="10">'+
+    '<label>'+t("fCurrency")+'</label><select id="f_cur"><option value="$"'+(v("cur","$")==="$"?" selected":"")+'>USD ($)</option><option value="€"'+(v("cur","$")==="€"?" selected":"")+'>EUR (€)</option><option value="£"'+(v("cur","$")==="£"?" selected":"")+'>GBP (£)</option></select>'+
     '<label>'+t("fTradeLimit")+'</label><input class="mono" id="f_tradelimit" type="number" inputmode="numeric" value="'+v("dailyTradeLimit",2)+'" placeholder="2">'+
     '<label>'+t("fDDType")+'</label><div class="toggle" id="f_ddtype"><button data-v="static" class="'+(v("ddType","static")==="static"?"on":"")+'">'+t("ddStatic")+'</button><button data-v="trailing" class="'+(v("ddType","static")==="trailing"?"on":"")+'">'+t("ddTrailing")+'</button></div>'+
     '<button class="btn primary" id="saveBtn">'+(c?t("save"):t("create"))+'</button>'+
@@ -469,10 +473,11 @@ function openForm(id){
     const targetPct=parseFloat(document.getElementById("f_target").value);
     const dailyPct=parseFloat(document.getElementById("f_daily").value);
     const overallPct=parseFloat(document.getElementById("f_overall").value);
+    const cur=document.getElementById("f_cur").value||"$";
     let tradeLimit=parseInt(document.getElementById("f_tradelimit").value,10); if(isNaN(tradeLimit)||tradeLimit<1)tradeLimit=2;
     if([size,targetPct,dailyPct,overallPct].some(x=>isNaN(x))){ alert(t("alertFields")); return; }
-    if(c){ Object.assign(c,{name,size,targetPct,dailyPct,overallPct,ddType,dailyTradeLimit:tradeLimit}); }
-    else{ state.challenges.push({id:uid(),name,size,targetPct,dailyPct,overallPct,ddType,dailyTradeLimit:tradeLimit,trades:[],dayStartEquity:size,dayStartTs:Date.now()}); }
+    if(c){ Object.assign(c,{name,size,targetPct,dailyPct,overallPct,ddType,dailyTradeLimit:tradeLimit,cur}); }
+    else{ state.challenges.push({id:uid(),name,size,targetPct,dailyPct,overallPct,ddType,dailyTradeLimit:tradeLimit,cur,trades:[],dayStartEquity:size,dayStartTs:Date.now()}); }
     save(); render(); c?openDetail(c.id):closeOverlay();
   };
 }
