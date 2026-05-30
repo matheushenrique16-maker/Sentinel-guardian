@@ -48,6 +48,8 @@
   .card.safe .meter i{background:var(--safe);} .card.warn .meter i{background:var(--warn);} .card.danger .meter i{background:var(--danger);}
   .overlay{position:fixed;inset:0;background:rgba(6,7,10,.65);backdrop-filter:blur(3px);display:none;z-index:50;}
   .overlay.open{display:block;}
+  .sheetClose{position:fixed;top:calc(12px + env(safe-area-inset-top,0px));right:14px;z-index:70;width:36px;height:36px;border-radius:50%;border:none;background:rgba(15,18,24,.88);color:#fff;font-size:17px;line-height:1;cursor:pointer;display:flex;align-items:center;justify-content:center;backdrop-filter:blur(6px);box-shadow:0 2px 10px rgba(0,0,0,.35);}
+  .sheetClose:active{background:rgba(40,45,58,.95);}
   .sheet{position:absolute;left:0;right:0;bottom:0;max-height:94vh;overflow-y:auto;background:var(--bg);border-radius:22px 22px 0 0;border-top:1px solid var(--line);padding:18px 16px calc(24px + var(--safe-b));animation:up .3s ease;}
   @keyframes up{from{transform:translateY(100%);}to{transform:none;}}
   .grab{width:40px;height:4px;background:var(--line);border-radius:99px;margin:0 auto 16px;}
@@ -132,7 +134,7 @@
   <div class="calbanner" onclick="openCalendar()"><div><b id="calBanTitle"></b><span class="s" id="calBanSub"></span></div><span class="arr">→</span></div>
   <div id="list"></div>
 </div>
-<div class="overlay" id="overlay"><div class="sheet" id="sheet"></div></div>
+<div class="overlay" id="overlay"><button class="sheetClose" id="sheetClose" onclick="closeOverlay()" aria-label="Fechar">✕</button><div class="sheet" id="sheet"></div></div>
 <div class="coach" id="coach"><div class="coachcard"><div class="ico">✋</div><div class="ct" id="coachBadge"></div><div class="cm" id="coachMsg"></div><button id="coachBtn" onclick="document.getElementById('coach').classList.remove('open')"></button></div></div>
 
 <script>
