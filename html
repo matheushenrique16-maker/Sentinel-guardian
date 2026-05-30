@@ -1,0 +1,488 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#0d0f14">
+<title>Sentinel · Prop Firm Guardian</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Hanken+Grotesk:wght@400;500;600;700;800&family=JetBrains+Mono:wght@600;700&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --bg:#0d0f14; --surface:#161922; --surface-2:#1e222d; --line:#282d3a;
+    --text:#e9ebf2; --muted:#888fa3; --faint:#5a6175;
+    --safe:#4ade80; --safe-dim:#16331f; --warn:#fbbf24; --warn-dim:#352a12;
+    --danger:#f87171; --danger-dim:#3a1b1b; --accent:#60a5fa;
+    --r:16px; --r-sm:11px; --safe-b:env(safe-area-inset-bottom,0px);
+  }
+  *{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent;}
+  html,body{background:var(--bg);}
+  body{font-family:'Hanken Grotesk',-apple-system,BlinkMacSystemFont,sans-serif;color:var(--text);line-height:1.45;min-height:100vh;-webkit-font-smoothing:antialiased;padding-bottom:calc(20px + var(--safe-b));}
+  .wrap{max-width:520px;margin:0 auto;padding:0 16px;}
+  .mono{font-family:'JetBrains Mono',monospace;}
+  header{padding:26px 0 8px;display:flex;justify-content:space-between;align-items:flex-end;}
+  .brand{display:flex;align-items:baseline;gap:8px;}
+  .brand h1{font-size:25px;font-weight:800;letter-spacing:-.5px;}
+  .brand .dot{width:9px;height:9px;border-radius:50%;background:var(--safe);align-self:center;}
+  .brand span{font-size:12px;color:var(--faint);font-weight:500;}
+  .addbtn{background:var(--accent);color:#06121f;border:none;font-family:inherit;font-weight:700;font-size:13px;padding:9px 14px;border-radius:99px;cursor:pointer;white-space:nowrap;}
+  .langbar{display:flex;justify-content:flex-end;align-items:center;gap:4px;margin:0 0 12px;}
+  .langbar .globe{font-size:13px;margin-right:2px;opacity:.6;}
+  .langbar button{background:none;border:1px solid var(--line);color:var(--muted);font-family:inherit;font-weight:700;font-size:11px;padding:5px 9px;border-radius:8px;cursor:pointer;}
+  .langbar button.on{background:var(--surface-2);color:var(--accent);border-color:var(--accent);}
+  .disclaimer{font-size:11.5px;color:var(--muted);background:var(--surface);border:1px solid var(--line);border-radius:var(--r-sm);padding:9px 11px;line-height:1.4;margin-bottom:14px;}
+  .disclaimer b{color:var(--text);font-weight:600;}
+  .empty{color:var(--muted);text-align:center;padding:50px 20px;line-height:1.6;font-size:14px;}
+  .card{background:var(--surface);border:1px solid var(--line);border-radius:var(--r);padding:16px;margin-bottom:12px;cursor:pointer;transition:.15s;border-left:4px solid var(--line);}
+  .card:active{background:var(--surface-2);}
+  .card.safe{border-left-color:var(--safe);} .card.warn{border-left-color:var(--warn);} .card.danger{border-left-color:var(--danger);}
+  .card .ctop{display:flex;justify-content:space-between;align-items:baseline;}
+  .card .cname{font-weight:700;font-size:16px;} .card .csize{font-size:12px;color:var(--faint);}
+  .card .room-lbl{font-size:11.5px;color:var(--muted);margin-top:12px;text-transform:uppercase;letter-spacing:.5px;}
+  .card .room-val{font-size:26px;font-weight:800;letter-spacing:-.5px;margin-top:1px;}
+  .card.safe .room-val{color:var(--safe);} .card.warn .room-val{color:var(--warn);} .card.danger .room-val{color:var(--danger);}
+  .card .room-sub{font-size:12px;color:var(--muted);margin-top:2px;}
+  .meter{height:6px;background:var(--surface-2);border-radius:99px;overflow:hidden;margin-top:12px;}
+  .meter i{display:block;height:100%;border-radius:99px;transition:width .4s;}
+  .card.safe .meter i{background:var(--safe);} .card.warn .meter i{background:var(--warn);} .card.danger .meter i{background:var(--danger);}
+  .overlay{position:fixed;inset:0;background:rgba(6,7,10,.65);backdrop-filter:blur(3px);display:none;z-index:50;}
+  .overlay.open{display:block;}
+  .sheet{position:absolute;left:0;right:0;bottom:0;max-height:94vh;overflow-y:auto;background:var(--bg);border-radius:22px 22px 0 0;border-top:1px solid var(--line);padding:18px 16px calc(24px + var(--safe-b));animation:up .3s ease;}
+  @keyframes up{from{transform:translateY(100%);}to{transform:none;}}
+  .grab{width:40px;height:4px;background:var(--line);border-radius:99px;margin:0 auto 16px;}
+  .sheet h3{font-size:20px;font-weight:800;letter-spacing:-.3px;}
+  .eqline{font-size:13px;color:var(--muted);margin-top:4px;}
+  .eqline b{color:var(--text);font-weight:700;} .eqline .pl.pos{color:var(--safe);} .eqline .pl.neg{color:var(--danger);}
+  .guard{border-radius:var(--r);padding:18px;margin:14px 0;text-align:center;}
+  .guard.safe{background:var(--safe-dim);border:1px solid #1f4429;} .guard.warn{background:var(--warn-dim);border:1px solid #4a3a18;} .guard.danger{background:var(--danger-dim);border:1px solid #5a2525;}
+  .guard .gl{font-size:12px;text-transform:uppercase;letter-spacing:.7px;font-weight:700;}
+  .guard.safe .gl{color:var(--safe);} .guard.warn .gl{color:var(--warn);} .guard.danger .gl{color:var(--danger);}
+  .guard .gv{font-size:38px;font-weight:800;letter-spacing:-1px;margin-top:4px;} .guard .gs{font-size:13px;color:var(--muted);margin-top:4px;}
+  .stat{display:flex;justify-content:space-between;align-items:center;background:var(--surface);border:1px solid var(--line);border-radius:var(--r-sm);padding:13px;margin-bottom:8px;}
+  .stat .sl{font-size:13px;font-weight:600;} .stat .sl small{display:block;color:var(--faint);font-weight:500;font-size:11px;margin-top:1px;}
+  .stat .sv{font-size:15px;font-weight:700;text-align:right;} .sv.pos{color:var(--safe);} .sv.neg{color:var(--danger);}
+  h2.section{font-size:12px;text-transform:uppercase;letter-spacing:1.1px;color:var(--faint);font-weight:700;margin:18px 2px 10px;display:flex;justify-content:space-between;align-items:center;}
+  .daycount{font-weight:700;letter-spacing:0;text-transform:none;} .daycount.hit{color:var(--warn);} .daycount.ok{color:var(--muted);}
+  label{font-size:12.5px;color:var(--muted);font-weight:600;display:block;margin:12px 0 5px;}
+  input,select{font-family:inherit;font-size:16px;background:var(--surface-2);color:var(--text);border:1px solid var(--line);border-radius:var(--r-sm);padding:11px 12px;width:100%;}
+  .row{display:flex;gap:10px;} .row>div{flex:1;}
+  .toggle{display:flex;gap:6px;}
+  .toggle button{flex:1;font-family:inherit;font-size:13px;font-weight:600;padding:11px 0;border-radius:var(--r-sm);border:1px solid var(--line);background:var(--surface);color:var(--muted);cursor:pointer;}
+  .toggle button.on{background:var(--accent);border-color:var(--accent);color:#06121f;}
+  .toggle button.win.on{background:var(--safe);border-color:var(--safe);color:#06180e;}
+  .toggle button.loss.on{background:var(--danger);border-color:var(--danger);color:#1a0606;}
+  .btn{width:100%;font-family:inherit;font-weight:700;font-size:15px;padding:14px;border-radius:var(--r-sm);border:none;cursor:pointer;margin-top:18px;}
+  .btn.primary{background:var(--safe);color:#06180e;} .btn.ghost{background:var(--surface);color:var(--text);border:1px solid var(--line);}
+  .btn.dgr{background:none;color:var(--danger);border:1px solid var(--danger-dim);margin-top:10px;}
+  .tradeadd{background:var(--surface);border:1px solid var(--line);border-radius:var(--r);padding:13px;}
+  .tradeadd .addrow{display:flex;gap:8px;margin-top:9px;} .tradeadd .addrow input{flex:1;}
+  .tradeadd .go{background:var(--accent);color:#06121f;border:none;font-family:inherit;font-weight:700;font-size:18px;width:48px;border-radius:var(--r-sm);cursor:pointer;flex:0 0 48px;}
+  .trade{display:flex;justify-content:space-between;align-items:center;padding:11px 2px;border-bottom:1px solid var(--line);}
+  .trade .tp{font-weight:600;font-size:14px;} .trade .tp small{color:var(--faint);font-weight:500;margin-left:6px;font-size:11px;}
+  .trade .tr{display:flex;align-items:center;gap:12px;}
+  .trade .amt{font-weight:700;font-size:14px;} .amt.pos{color:var(--safe);} .amt.neg{color:var(--danger);}
+  .trade .del{color:var(--faint);font-size:16px;cursor:pointer;padding:0 4px;}
+  .nodata{color:var(--faint);font-size:13px;text-align:center;padding:14px;}
+  .pretrade{background:var(--surface);border:1px solid var(--line);border-radius:var(--r);padding:14px;}
+  .pretrade .verdict{margin-top:10px;font-size:13.5px;font-weight:600;padding:10px;border-radius:var(--r-sm);text-align:center;}
+  .verdict.ok{background:var(--safe-dim);color:var(--safe);} .verdict.no{background:var(--danger-dim);color:var(--danger);}
+  .daybtn{background:var(--surface-2);border:1px solid var(--line);color:var(--accent);font-family:inherit;font-weight:600;font-size:11px;padding:6px 11px;border-radius:99px;cursor:pointer;}
+  .coach{position:fixed;inset:0;background:rgba(6,7,10,.78);backdrop-filter:blur(4px);display:none;z-index:60;align-items:center;justify-content:center;padding:24px;}
+  .coach.open{display:flex;}
+  .coachcard{background:var(--surface);border:1px solid var(--warn-dim);border-radius:20px;padding:26px 22px;max-width:380px;text-align:center;animation:pop .25s ease;}
+  @keyframes pop{from{transform:scale(.9);opacity:0;}to{transform:none;opacity:1;}}
+  .coachcard .ico{font-size:36px;} .coachcard .ct{font-size:12px;text-transform:uppercase;letter-spacing:.8px;color:var(--warn);font-weight:700;margin-top:8px;}
+  .coachcard .cm{font-size:16px;font-weight:600;line-height:1.45;margin-top:10px;}
+  .coachcard button{margin-top:20px;width:100%;background:var(--warn);color:#1a1405;border:none;font-family:inherit;font-weight:700;font-size:15px;padding:13px;border-radius:12px;cursor:pointer;}
+  .probanner{display:flex;justify-content:space-between;align-items:center;gap:10px;cursor:pointer;background:linear-gradient(135deg,#1b2740,#161922);border:1px solid #2c3a57;border-radius:var(--r);padding:14px 16px;margin-bottom:14px;}
+  .probanner:active{border-color:var(--accent);}
+  .probanner b{font-size:14.5px;font-weight:800;color:var(--accent);} .probanner .s{display:block;font-size:12px;color:var(--muted);margin-top:2px;font-weight:500;}
+  .probanner .arr{color:var(--accent);font-size:20px;font-weight:700;}
+  .prohead{text-align:center;padding:6px 0 4px;}
+  .probadge{display:inline-block;font-size:11px;font-weight:800;letter-spacing:1px;color:var(--accent);background:#16203a;border:1px solid #2c3a57;padding:4px 10px;border-radius:99px;}
+  .prohead h3{margin-top:10px;} .prosub{color:var(--muted);font-size:14px;margin-top:4px;}
+  .profeat{margin:18px 0;}
+  .pf{display:flex;gap:13px;align-items:flex-start;background:var(--surface);border:1px solid var(--line);border-radius:var(--r-sm);padding:14px;margin-bottom:9px;}
+  .pf .pfi{font-size:22px;line-height:1.2;flex-shrink:0;}
+  .pf b{font-size:14.5px;font-weight:700;} .pf small{display:block;color:var(--muted);font-size:12.5px;margin-top:3px;line-height:1.4;}
+  .proprice{text-align:center;margin:6px 0 2px;}
+  .proprice .pp{font-size:34px;font-weight:800;letter-spacing:-1px;} .proprice .pp small{font-size:15px;color:var(--muted);font-weight:600;}
+  .proprice .ppn{font-size:12px;color:var(--faint);margin-top:2px;}
+  .calbanner{display:flex;justify-content:space-between;align-items:center;gap:10px;cursor:pointer;background:var(--surface);border:1px solid var(--line);border-radius:var(--r);padding:13px 16px;margin-bottom:14px;}
+  .calbanner:active{border-color:var(--accent);}
+  .calbanner b{font-size:14px;font-weight:700;} .calbanner .s{display:block;font-size:12px;color:var(--muted);margin-top:2px;font-weight:500;}
+  .calbanner .arr{color:var(--faint);font-size:18px;}
+  .calnote{font-size:12.5px;color:var(--muted);background:var(--warn-dim);border:1px solid #4a3a18;border-radius:var(--r-sm);padding:10px 12px;margin:8px 0 12px;line-height:1.4;}
+  .tvwrap{height:72vh;border:1px solid var(--line);border-radius:var(--r-sm);overflow:hidden;}
+  .tvwrap .tradingview-widget-container,.tvwrap .tradingview-widget-container__widget,.tvwrap iframe{height:100%!important;width:100%!important;}
+  .emailmsg{font-size:12.5px;margin-top:8px;text-align:center;color:var(--muted);} .emailmsg.err{color:var(--danger);}
+  .prodone{margin-top:12px;background:var(--safe-dim);color:var(--safe);border-radius:var(--r-sm);padding:14px;text-align:center;font-weight:600;font-size:14px;}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header>
+    <div class="brand"><h1>Sentinel</h1><span class="dot"></span><span id="subtitle"></span></div>
+    <button class="addbtn" id="addBtn" onclick="openForm()"></button>
+  </header>
+  <div class="langbar"><span class="globe">🌐</span><button data-l="en" onclick="setLang('en')">EN</button><button data-l="pt" onclick="setLang('pt')">PT</button><button data-l="es" onclick="setLang('es')">ES</button></div>
+  <div class="disclaimer" id="disc"></div>
+  <div class="probanner" onclick="openPro()"><div><b id="proBanTitle">✦ Sentinel Pro</b><span class="s" id="proBanSub"></span></div><span class="arr">→</span></div>
+  <div class="calbanner" onclick="openCalendar()"><div><b id="calBanTitle"></b><span class="s" id="calBanSub"></span></div><span class="arr">→</span></div>
+  <div id="list"></div>
+</div>
+<div class="overlay" id="overlay"><div class="sheet" id="sheet"></div></div>
+<div class="coach" id="coach"><div class="coachcard"><div class="ico">✋</div><div class="ct" id="coachBadge"></div><div class="cm" id="coachMsg"></div><button id="coachBtn" onclick="document.getElementById('coach').classList.remove('open')"></button></div></div>
+
+<script>
+/* ===================== i18n ===================== */
+const I18N={
+  en:{
+    subtitle:"prop firm guardian", addChallenge:"+ Challenge",
+    discBold:"Discipline guardrail, not an official source.", discRest:" Equity comes from the trades you log. The number that counts is the one on your prop firm dashboard.",
+    proBanSub:"auto-connect, real-time alerts and multi-account",
+    emptyTitle:"No challenges yet.", emptyHint:"Tap + Challenge and enter your prop firm's rules.",
+    cardBreached:"⚠ Limit blown", cardRoom:"Room before blowing", lockPrefix:"limit: ",
+    bindDaily:"daily loss", bindDD:"max drawdown",
+    guardBlown:"Limit blown", guardCanLose:"You can still lose", guardSub:b=>"before blowing · limit: "+b,
+    statDaily:"Daily loss", statDailySub:(l,t)=>"limit "+l+" · today "+t,
+    statDD:"Max drawdown", statDDSub:(f,t)=>"floor "+f+" ("+t+")", ddStatic:"static", ddTrailing:"trailing",
+    statTarget:"Target", targetMet:"✓ reached", targetLeft:x=>x+" to go",
+    opsTitle:"Trades", todayCount:(c,l)=>"Today: "+c+"/"+l, pairPh:"Pair (optional)", valuePh:"€ amount", newDay:"↻ New day",
+    noTrades:"No trades yet. Add one above.",
+    preTitle:"Pre-trade calculator", riskLabel:"Risk on this trade (€ lost if SL is hit)", riskPh:"e.g. 200",
+    verdictNo:a=>"⚠ DANGER: this could blow you. Room after: "+a, verdictOk:a=>"OK. Room left after: "+a,
+    editRules:"Edit rules", delChallenge:"Delete challenge", confirmDel:"Delete this challenge?", alertAmount:"Enter the trade amount.",
+    formEdit:"Edit challenge", formNew:"New challenge", fName:"Name / firm", fNamePh:"e.g. The5% 50k",
+    fSize:"Account size (€)", fTarget:"Profit target (%)", fDaily:"Daily loss (%)", fOverall:"Max total drawdown (%)",
+    fTradeLimit:"Trades per day (consistency goal)", fDDType:"Drawdown type",
+    save:"Save", create:"Create challenge", cancel:"Cancel", alertFields:"Fill in all numeric fields.",
+    coachBadge:"Consistency", coachBtn:"Got it, I'll stop",
+    coachAt:l=>"You hit your limit of "+l+" trades today. What comes next is usually anxiety, not a setup. Consider closing the terminal.",
+    coachOver:n=>n+" trades today. You're past your plan. Disguised revenge trading kills more accounts than a bad market.",
+    coachStop:n=>"Stop. "+n+" trades today. You're not following a plan, you're chasing the market. This is how funded accounts blow up.",
+    proSub:"Protect what you already paid for.",
+    proF1T:"Auto-connect", proF1D:"Connects to your MT5 or cTrader and follows your equity live. You log nothing by hand.",
+    proF2T:"Real-time alerts", proF2D:'A heads-up the second it matters: "you\'re €X from blowing up", before the dumb click.',
+    proF3T:"Consolidated multi-account", proF3D:"All your challenges and funded accounts in one panel, with combined risk.",
+    proPriceNote:"less than the cost of blowing a single challenge", perMonth:"/mo",
+    proCta:"Notify me at launch", proClose:"Not now", proAlert:"Set FORM_ENDPOINT in the code with your Formspree link.",
+    calBanner:"📅 Economic calendar", calBannerSub:"today's high-impact news", calTitle:"Economic calendar", calNote:"High-impact news means volatility. Check it before you trade. It can blow your stops.",
+    proF4T:"News-aware alerts", proF4D:"The guardian warns you before high-impact news, tied to your live risk. Not just a calendar you open yourself.",
+    emailPh:"your@email.com", emailSend:"Send", emailDone:"Done. We'll let you know at launch.", emailInvalid:"Enter a valid email.", emailErr:"Couldn't send. Try again."
+  },
+  pt:{
+    subtitle:"guardião de prop firm", addChallenge:"+ Desafio",
+    discBold:"Guardrail de disciplina, não fonte oficial.", discRest:" O equity vem das operações que você loga. O número que vale é o do dashboard da sua prop firm.",
+    proBanSub:"conexão automática, alertas em tempo real e multi-conta",
+    emptyTitle:"Nenhum desafio ainda.", emptyHint:"Toque em + Desafio e cadastre as regras da sua prop firm.",
+    cardBreached:"⚠ Limite estourado", cardRoom:"Margem até estourar", lockPrefix:"trava: ",
+    bindDaily:"perda diária", bindDD:"drawdown máx",
+    guardBlown:"Limite estourado", guardCanLose:"Você pode perder mais", guardSub:b=>"antes de estourar · trava: "+b,
+    statDaily:"Perda diária", statDailySub:(l,t)=>"limite "+l+" · hoje "+t,
+    statDD:"Drawdown máx", statDDSub:(f,t)=>"piso "+f+" ("+t+")", ddStatic:"estático", ddTrailing:"trailing",
+    statTarget:"Meta", targetMet:"✓ atingida", targetLeft:x=>"faltam "+x,
+    opsTitle:"Operações", todayCount:(c,l)=>"Hoje: "+c+"/"+l, pairPh:"Par (opcional)", valuePh:"€ valor", newDay:"↻ Novo dia",
+    noTrades:"Nenhuma operação ainda. Adicione acima.",
+    preTitle:"Calculadora pré-trade", riskLabel:"Risco desta operação (€ que perde se bater o stop)", riskPh:"ex: 200",
+    verdictNo:a=>"⚠ PERIGO: pode te estourar. Margem após: "+a, verdictOk:a=>"OK. Margem restante após: "+a,
+    editRules:"Editar regras", delChallenge:"Apagar desafio", confirmDel:"Apagar este desafio?", alertAmount:"Informe o valor da operação.",
+    formEdit:"Editar desafio", formNew:"Novo desafio", fName:"Nome / firma", fNamePh:"ex: The5% 50k",
+    fSize:"Tamanho da conta (€)", fTarget:"Meta de lucro (%)", fDaily:"Perda diária (%)", fOverall:"Drawdown máx total (%)",
+    fTradeLimit:"Operações por dia (meta de consistência)", fDDType:"Tipo de drawdown",
+    save:"Salvar", create:"Criar desafio", cancel:"Cancelar", alertFields:"Preencha todos os campos numéricos.",
+    coachBadge:"Consistência", coachBtn:"Entendi, vou parar",
+    coachAt:l=>"Você bateu seu limite de "+l+" operações hoje. Daqui pra frente costuma ser ansiedade, não setup. Considere fechar o terminal.",
+    coachOver:n=>n+"ª operação do dia. Você passou do seu plano. Revenge trade disfarçado destrói mais conta que mercado ruim.",
+    coachStop:n=>"Para. "+n+" operações hoje. Você não está seguindo um plano, está perseguindo o mercado. É assim que conta funded estoura.",
+    proSub:"Proteja o que você já pagou.",
+    proF1T:"Conexão automática", proF1D:"Conecta no seu MT5 ou cTrader e acompanha seu equity ao vivo. Você não digita operação nenhuma.",
+    proF2T:"Alertas em tempo real", proF2D:'Um aviso na hora certa: "você está a €X de estourar", antes do clique burro.',
+    proF3T:"Multi-conta consolidada", proF3D:"Todos os seus desafios e contas funded num painel só, com risco somado.",
+    proPriceNote:"menos que o custo de estourar um único desafio", perMonth:"/mês",
+    proCta:"Quero ser avisado no lançamento", proClose:"Agora não", proAlert:"Defina FORM_ENDPOINT no código com o link do seu Formspree.",
+    calBanner:"📅 Calendário econômico", calBannerSub:"as notícias de alto impacto do dia", calTitle:"Calendário econômico", calNote:"Notícia de alto impacto é volatilidade. Confira antes de operar. Pode estourar seus stops.",
+    proF4T:"Alertas de notícia", proF4D:"O guardião te avisa antes da notícia de alto impacto, ligado ao seu risco ao vivo. Não é só um calendário que você abre sozinho.",
+    emailPh:"seu@email.com", emailSend:"Enviar", emailDone:"Pronto. Vamos te avisar no lançamento.", emailInvalid:"Digite um e-mail válido.", emailErr:"Não deu pra enviar. Tente de novo."
+  },
+  es:{
+    subtitle:"guardián de prop firm", addChallenge:"+ Desafío",
+    discBold:"Guardrail de disciplina, no fuente oficial.", discRest:" El equity viene de las operaciones que registras. El número que vale es el del dashboard de tu prop firm.",
+    proBanSub:"conexión automática, alertas en tiempo real y multicuenta",
+    emptyTitle:"Ningún desafío todavía.", emptyHint:"Toca + Desafío y registra las reglas de tu prop firm.",
+    cardBreached:"⚠ Límite reventado", cardRoom:"Margen hasta reventar", lockPrefix:"límite: ",
+    bindDaily:"pérdida diaria", bindDD:"drawdown máx",
+    guardBlown:"Límite reventado", guardCanLose:"Aún puedes perder", guardSub:b=>"antes de reventar · límite: "+b,
+    statDaily:"Pérdida diaria", statDailySub:(l,t)=>"límite "+l+" · hoy "+t,
+    statDD:"Drawdown máx", statDDSub:(f,t)=>"piso "+f+" ("+t+")", ddStatic:"estático", ddTrailing:"trailing",
+    statTarget:"Meta", targetMet:"✓ alcanzada", targetLeft:x=>"faltan "+x,
+    opsTitle:"Operaciones", todayCount:(c,l)=>"Hoy: "+c+"/"+l, pairPh:"Par (opcional)", valuePh:"€ valor", newDay:"↻ Nuevo día",
+    noTrades:"Ninguna operación todavía. Agrega arriba.",
+    preTitle:"Calculadora pre-trade", riskLabel:"Riesgo de esta operación (€ que pierdes si toca el stop)", riskPh:"ej: 200",
+    verdictNo:a=>"⚠ PELIGRO: puede reventarte. Margen después: "+a, verdictOk:a=>"OK. Margen restante después: "+a,
+    editRules:"Editar reglas", delChallenge:"Eliminar desafío", confirmDel:"¿Eliminar este desafío?", alertAmount:"Ingresa el valor de la operación.",
+    formEdit:"Editar desafío", formNew:"Nuevo desafío", fName:"Nombre / firma", fNamePh:"ej: The5% 50k",
+    fSize:"Tamaño de la cuenta (€)", fTarget:"Meta de ganancia (%)", fDaily:"Pérdida diaria (%)", fOverall:"Drawdown máx total (%)",
+    fTradeLimit:"Operaciones por día (meta de consistencia)", fDDType:"Tipo de drawdown",
+    save:"Guardar", create:"Crear desafío", cancel:"Cancelar", alertFields:"Completa todos los campos numéricos.",
+    coachBadge:"Consistencia", coachBtn:"Entendido, voy a parar",
+    coachAt:l=>"Alcanzaste tu límite de "+l+" operaciones hoy. Lo que viene suele ser ansiedad, no un setup. Considera cerrar la terminal.",
+    coachOver:n=>n+"ª operación del día. Pasaste tu plan. El revenge trade disfrazado destruye más cuentas que un mal mercado.",
+    coachStop:n=>"Para. "+n+" operaciones hoy. No estás siguiendo un plan, estás persiguiendo al mercado. Así es como revientan las cuentas funded.",
+    proSub:"Protege lo que ya pagaste.",
+    proF1T:"Conexión automática", proF1D:"Se conecta a tu MT5 o cTrader y sigue tu equity en vivo. No registras operaciones a mano.",
+    proF2T:"Alertas en tiempo real", proF2D:'Un aviso en el momento justo: "estás a €X de reventar", antes del clic tonto.',
+    proF3T:"Multicuenta consolidada", proF3D:"Todos tus desafíos y cuentas funded en un panel, con riesgo combinado.",
+    proPriceNote:"menos que el costo de reventar un solo desafío", perMonth:"/mes",
+    proCta:"Avísame en el lanzamiento", proClose:"Ahora no", proAlert:"Define FORM_ENDPOINT en el código con el enlace de tu Formspree.",
+    calBanner:"📅 Calendario económico", calBannerSub:"las noticias de alto impacto del día", calTitle:"Calendario económico", calNote:"Noticia de alto impacto es volatilidad. Revisa antes de operar. Puede reventar tus stops.",
+    proF4T:"Alertas de noticias", proF4D:"El guardián te avisa antes de la noticia de alto impacto, ligado a tu riesgo en vivo. No es solo un calendario que revisas tú mismo.",
+    emailPh:"tu@email.com", emailSend:"Enviar", emailDone:"Listo. Te avisamos en el lanzamiento.", emailInvalid:"Ingresa un correo válido.", emailErr:"No se pudo enviar. Inténtalo de nuevo."
+  }
+};
+function loadLang(){
+  try{ const s=localStorage.getItem("sentinelLang"); if(s&&I18N[s]) return s; }catch(e){}
+  const n=(navigator.language||"en").toLowerCase();
+  if(n.startsWith("pt")) return "pt"; if(n.startsWith("es")) return "es"; return "en";
+}
+let lang=loadLang();
+function t(key,...a){ const v=(I18N[lang]||I18N.en)[key]; return typeof v==="function"?v(...a):(v==null?key:v); }
+function setLang(l){ lang=l; try{localStorage.setItem("sentinelLang",l);}catch(e){} document.documentElement.lang=l; closeOverlay(); renderChrome(); render(); }
+
+/* ===================== estado ===================== */
+const KEY="sentinelV2";
+let state;
+function loadState(){
+  let s={challenges:[]};
+  try{ const raw=localStorage.getItem(KEY); if(raw) s=JSON.parse(raw); }catch(e){ console.warn(e); }
+  (s.challenges||[]).forEach(c=>{
+    if(!c.trades) c.trades=[];
+    if(c.dailyTradeLimit==null) c.dailyTradeLimit=2;
+    if(c.dayStartEquity==null) c.dayStartEquity=c.size;
+    if(c.dayStartTs==null) c.dayStartTs=c.trades.length?c.trades[0].ts:Date.now();
+  });
+  return s;
+}
+function save(){ try{ localStorage.setItem(KEY,JSON.stringify(state)); }catch(e){ console.warn(e); } }
+const uid=()=>Math.random().toString(36).slice(2,9);
+const fmt=n=>"€"+Math.round(n).toLocaleString("en-US");
+const fmtSigned=n=>(n>=0?"+":"−")+"€"+Math.abs(Math.round(n)).toLocaleString("en-US");
+function esc(s){return (s||"").replace(/[&<>"]/g,m=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[m]));}
+function dt(ts){ const d=new Date(ts); return d.toLocaleDateString(lang,{day:"2-digit",month:"2-digit"})+" "+d.toLocaleTimeString(lang,{hour:"2-digit",minute:"2-digit"}); }
+
+function derive(c){ let r=c.size,p=c.size; (c.trades||[]).forEach(x=>{ r+=(x.result==="win"?x.amount:-x.amount); p=Math.max(p,r); }); return {equity:r,peak:p,pl:r-c.size}; }
+function todayCount(c){ return (c.trades||[]).filter(x=>x.ts>=c.dayStartTs).length; }
+function guardian(c){
+  const {equity,peak}=derive(c);
+  const sod=c.dayStartEquity!=null?c.dayStartEquity:c.size;
+  const targetEquity=c.size*(1+c.targetPct/100);
+  const todaysLoss=Math.max(0,sod-equity);
+  const dailyLimit=c.size*(c.dailyPct/100);
+  const dailyRoom=dailyLimit-todaysLoss;
+  const ref=c.ddType==="trailing"?peak:c.size;
+  const floor=ref*(1-c.overallPct/100);
+  const ddBuffer=ref*(c.overallPct/100);
+  const ddRoom=equity-floor;
+  const bindingRoom=Math.min(dailyRoom,ddRoom);
+  const bindsKey=dailyRoom<=ddRoom?"bindDaily":"bindDD";
+  const dailyPctRem=dailyLimit>0?dailyRoom/dailyLimit:1;
+  const ddPctRem=ddBuffer>0?ddRoom/ddBuffer:1;
+  const bindingPct=Math.max(0,Math.min(dailyPctRem,ddPctRem));
+  let status="safe"; if(bindingRoom<=0||bindingPct<0.2)status="danger"; else if(bindingPct<0.5)status="warn";
+  const toTarget=Math.max(0,targetEquity-equity), targetMet=equity>=targetEquity;
+  const profitProg=Math.max(0,Math.min(1,(equity-c.size)/(targetEquity-c.size)));
+  return {equity,peak,toTarget,targetMet,profitProg,dailyLimit,todaysLoss,dailyRoom,floor,ddRoom,bindingRoom,bindsKey,bindingPct,status,breached:bindingRoom<=0,pl:equity-c.size};
+}
+function coachMsg(count,limit){ if(count===limit)return t("coachAt",limit); if(count===limit+1)return t("coachOver",limit+1); return t("coachStop",count); }
+function showCoach(msg){ document.getElementById("coachMsg").textContent=msg; document.getElementById("coach").classList.add("open"); }
+
+/* ===================== chrome estático ===================== */
+function renderChrome(){
+  document.getElementById("subtitle").textContent=t("subtitle");
+  document.getElementById("addBtn").textContent=t("addChallenge");
+  document.getElementById("disc").innerHTML="<b>"+t("discBold")+"</b>"+t("discRest");
+  document.getElementById("proBanSub").textContent=t("proBanSub");
+  document.getElementById("calBanTitle").textContent=t("calBanner");
+  document.getElementById("calBanSub").textContent=t("calBannerSub");
+  document.getElementById("coachBadge").textContent=t("coachBadge");
+  document.getElementById("coachBtn").textContent=t("coachBtn");
+  document.querySelectorAll(".langbar button").forEach(b=>b.classList.toggle("on",b.dataset.l===lang));
+}
+
+/* ===================== Pro ===================== */
+/* Inscrição na waitlist via MailerLite (form embed, double opt-in ligado).
+   Envia direto pro endpoint do formulário com um form oculto: sem chave exposta e sem CORS. */
+const ML_ACTION="https://assets.mailerlite.com/jsonp/2390568/forms/188885421462128381/subscribe";
+const PRO_PRICE="€6.99";
+function submitInterest(email){
+  return new Promise(resolve=>{
+    try{
+      const iframe=document.createElement("iframe"); iframe.name="ml_sink_"+Date.now(); iframe.style.display="none";
+      document.body.appendChild(iframe);
+      const form=document.createElement("form"); form.action=ML_ACTION; form.method="post"; form.target=iframe.name; form.style.display="none";
+      const add=(n,v)=>{ const i=document.createElement("input"); i.type="hidden"; i.name=n; i.value=v; form.appendChild(i); };
+      add("fields[email]",email); add("ml-submit","1"); add("anticsrf","true");
+      document.body.appendChild(form); form.submit();
+      setTimeout(()=>{ try{form.remove();iframe.remove();}catch(e){} resolve(true); },1200);
+    }catch(e){ resolve(false); }
+  });
+}
+function openPro(){
+  document.getElementById("sheet").innerHTML=
+    '<div class="grab"></div>'+
+    '<div class="prohead"><div class="probadge">✦ PRO</div><h3>Sentinel Pro</h3><div class="prosub">'+t("proSub")+'</div></div>'+
+    '<div class="profeat">'+
+      '<div class="pf"><span class="pfi">🔗</span><div><b>'+t("proF1T")+'</b><small>'+t("proF1D")+'</small></div></div>'+
+      '<div class="pf"><span class="pfi">🔔</span><div><b>'+t("proF2T")+'</b><small>'+t("proF2D")+'</small></div></div>'+
+      '<div class="pf"><span class="pfi">📊</span><div><b>'+t("proF3T")+'</b><small>'+t("proF3D")+'</small></div></div>'+
+      '<div class="pf"><span class="pfi">📰</span><div><b>'+t("proF4T")+'</b><small>'+t("proF4D")+'</small></div></div>'+
+    '</div>'+
+    '<div class="proprice"><div class="pp">'+PRO_PRICE+'<small>'+t("perMonth")+'</small></div><div class="ppn">'+t("proPriceNote")+'</div></div>'+
+    '<button class="btn primary" id="proCta">'+t("proCta")+'</button>'+
+    '<div id="emailBox" style="display:none;margin-top:12px;">'+
+      '<input id="proEmail" type="email" inputmode="email" autocomplete="email" placeholder="'+t("emailPh")+'">'+
+      '<button class="btn primary" id="proSend">'+t("emailSend")+'</button>'+
+      '<div id="emailMsg" class="emailmsg"></div>'+
+    '</div>'+
+    '<div id="proDone" class="prodone" style="display:none;"></div>'+
+    '<button class="btn ghost" id="proClose">'+t("proClose")+'</button>';
+  document.getElementById("overlay").classList.add("open");
+  const cta=document.getElementById("proCta"), box=document.getElementById("emailBox");
+  cta.onclick=()=>{ cta.style.display="none"; box.style.display="block"; document.getElementById("proEmail").focus(); };
+  document.getElementById("proSend").onclick=async()=>{
+    const em=document.getElementById("proEmail").value.trim(), msg=document.getElementById("emailMsg"), send=document.getElementById("proSend");
+    if(!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(em)){ msg.className="emailmsg err"; msg.textContent=t("emailInvalid"); return; }
+    send.disabled=true; send.textContent="…";
+    const ok=await submitInterest(em);
+    if(ok){ box.style.display="none"; const d=document.getElementById("proDone"); d.style.display="block"; d.textContent=t("emailDone"); }
+    else{ msg.className="emailmsg err"; msg.textContent=t("emailErr"); send.disabled=false; send.textContent=t("emailSend"); }
+  };
+  document.getElementById("proClose").onclick=closeOverlay;
+}
+
+/* ===================== Calendário (grátis, widget TradingView) ===================== */
+function openCalendar(){
+  const sheet=document.getElementById("sheet");
+  sheet.innerHTML='<div class="grab"></div><h3>'+t("calTitle")+'</h3><div class="calnote">'+t("calNote")+'</div><div id="tvcal" class="tvwrap"></div>';
+  document.getElementById("overlay").classList.add("open");
+  const locale = lang==="pt" ? "br" : (lang==="es" ? "es" : "en");
+  const cont=document.createElement("div"); cont.className="tradingview-widget-container";
+  const inner=document.createElement("div"); inner.className="tradingview-widget-container__widget"; cont.appendChild(inner);
+  const s=document.createElement("script");
+  s.src="https://s3.tradingview.com/external-embedding/embed-widget-events.js"; s.async=true;
+  s.innerHTML=JSON.stringify({ colorTheme:"dark", isTransparent:true, locale:locale,
+    countryFilter:"us,eu,gb,jp,ca,au,ch,cn,nz", importanceFilter:"0,1", width:"100%", height:"100%" });
+  cont.appendChild(s);
+  document.getElementById("tvcal").appendChild(cont);
+}
+
+/* ===================== render lista ===================== */
+function render(){
+  const list=document.getElementById("list"); list.innerHTML="";
+  if(!state.challenges.length){ list.innerHTML='<div class="empty"><b>'+t("emptyTitle")+'</b><br>'+t("emptyHint")+'</div>'; return; }
+  state.challenges.forEach(c=>{
+    const g=guardian(c);
+    const el=document.createElement("div"); el.className="card "+g.status; el.onclick=()=>openDetail(c.id);
+    el.innerHTML='<div class="ctop"><span class="cname">'+esc(c.name)+'</span><span class="csize mono">'+fmt(g.equity)+' / '+fmt(c.size)+'</span></div>'+
+      '<div class="room-lbl">'+(g.breached?t("cardBreached"):t("cardRoom"))+'</div>'+
+      '<div class="room-val mono">'+fmt(Math.max(0,g.bindingRoom))+'</div>'+
+      '<div class="room-sub">'+t("lockPrefix")+t(g.bindsKey)+'</div>'+
+      '<div class="meter"><i style="width:'+(g.bindingPct*100).toFixed(0)+'%"></i></div>';
+    list.appendChild(el);
+  });
+}
+
+function openDetail(id){
+  const c=state.challenges.find(x=>x.id===id); if(!c.trades)c.trades=[];
+  const g=guardian(c); const tc=todayCount(c); const hit=tc>=c.dailyTradeLimit;
+  const ddTypeLabel=c.ddType==="trailing"?t("ddTrailing"):t("ddStatic");
+  const tradesHtml=c.trades.length
+    ? c.trades.slice().reverse().map(x=>'<div class="trade"><div class="tp">'+(x.result==="win"?"Win":"Loss")+'<small>'+(x.pair?esc(x.pair)+" · ":"")+dt(x.ts)+'</small></div><div class="tr"><span class="amt '+(x.result==="win"?"pos":"neg")+'">'+fmtSigned(x.result==="win"?x.amount:-x.amount)+'</span><span class="del" data-tid="'+x.id+'">✕</span></div></div>').join("")
+    : '<div class="nodata">'+t("noTrades")+'</div>';
+
+  document.getElementById("sheet").innerHTML=
+    '<div class="grab"></div><h3>'+esc(c.name)+'</h3>'+
+    '<div class="eqline">Equity: <b class="mono">'+fmt(g.equity)+'</b> · P&L <span class="pl '+(g.pl>=0?"pos":"neg")+'">'+fmtSigned(g.pl)+'</span></div>'+
+    '<div class="guard '+g.status+'"><div class="gl">'+(g.breached?t("guardBlown"):t("guardCanLose"))+'</div><div class="gv mono">'+fmt(Math.max(0,g.bindingRoom))+'</div><div class="gs">'+t("guardSub",t(g.bindsKey))+'</div></div>'+
+    '<div class="stat"><div class="sl">'+t("statDaily")+'<small>'+t("statDailySub",fmt(g.dailyLimit),fmt(g.todaysLoss))+'</small></div><div class="sv '+(g.dailyRoom>0?"pos":"neg")+'">'+fmt(g.dailyRoom)+'</div></div>'+
+    '<div class="stat"><div class="sl">'+t("statDD")+'<small>'+t("statDDSub",fmt(g.floor),ddTypeLabel)+'</small></div><div class="sv '+(g.ddRoom>0?"pos":"neg")+'">'+fmt(g.ddRoom)+'</div></div>'+
+    '<div class="stat"><div class="sl">'+t("statTarget")+'<small>'+(g.targetMet?t("targetMet"):t("targetLeft",fmt(g.toTarget)))+'</small></div><div class="sv">'+(g.profitProg*100).toFixed(0)+'%</div></div>'+
+    '<h2 class="section"><span>'+t("opsTitle")+'</span><span class="daycount '+(hit?"hit":"ok")+'">'+t("todayCount",tc,c.dailyTradeLimit)+'</span></h2>'+
+    '<div class="tradeadd"><div class="toggle"><button class="win on" id="tgWin">Win</button><button class="loss" id="tgLoss">Loss</button></div>'+
+      '<div class="addrow"><input id="t_pair" placeholder="'+t("pairPh")+'"><input id="t_amt" class="mono" type="number" inputmode="decimal" placeholder="'+t("valuePh")+'" style="flex:0 0 110px;"><button class="go" id="addTrade">+</button></div></div>'+
+    '<div style="margin:6px 0 4px;text-align:right;"><button class="daybtn" id="newDayBtn">'+t("newDay")+'</button></div>'+
+    '<div>'+tradesHtml+'</div>'+
+    '<h2 class="section">'+t("preTitle")+'</h2>'+
+    '<div class="pretrade"><label>'+t("riskLabel")+'</label><input class="mono" id="riskIn" type="number" inputmode="decimal" placeholder="'+t("riskPh")+'"><div id="verdict"></div></div>'+
+    '<button class="btn ghost" id="editBtn">'+t("editRules")+'</button>'+
+    '<button class="btn dgr" id="delBtn">'+t("delChallenge")+'</button>';
+  document.getElementById("overlay").classList.add("open");
+
+  let result="win";
+  const tgWin=document.getElementById("tgWin"), tgLoss=document.getElementById("tgLoss");
+  tgWin.onclick=()=>{result="win";tgWin.classList.add("on");tgLoss.classList.remove("on");};
+  tgLoss.onclick=()=>{result="loss";tgLoss.classList.add("on");tgWin.classList.remove("on");};
+  document.getElementById("addTrade").onclick=()=>{
+    const amt=parseFloat(document.getElementById("t_amt").value);
+    if(isNaN(amt)||amt<=0){ alert(t("alertAmount")); return; }
+    const pair=document.getElementById("t_pair").value.trim();
+    c.trades.push({id:uid(),pair,result,amount:amt,ts:Date.now()});
+    save(); render(); const count=todayCount(c); openDetail(id);
+    if(count>=c.dailyTradeLimit) showCoach(coachMsg(count,c.dailyTradeLimit));
+  };
+  document.querySelectorAll(".del").forEach(d=>d.onclick=()=>{ c.trades=c.trades.filter(x=>x.id!==d.dataset.tid); save(); render(); openDetail(id); });
+  document.getElementById("newDayBtn").onclick=()=>{ c.dayStartEquity=derive(c).equity; c.dayStartTs=Date.now(); save(); openDetail(id); };
+  const riskIn=document.getElementById("riskIn");
+  riskIn.addEventListener("input",()=>{
+    const r=parseFloat(riskIn.value); const vd=document.getElementById("verdict");
+    if(isNaN(r)||r<=0){ vd.innerHTML=""; return; }
+    const after=g.bindingRoom-r;
+    if(after<=0){ vd.className="verdict no"; vd.innerHTML=t("verdictNo",fmt(after)); } else { vd.className="verdict ok"; vd.innerHTML=t("verdictOk",fmt(after)); }
+  });
+  document.getElementById("editBtn").onclick=()=>openForm(id);
+  document.getElementById("delBtn").onclick=()=>{ if(confirm(t("confirmDel"))){ state.challenges=state.challenges.filter(x=>x.id!==id); save(); render(); closeOverlay(); } };
+}
+
+function openForm(id){
+  const c=id?state.challenges.find(x=>x.id===id):null; const v=(k,d)=>c?c[k]:d;
+  document.getElementById("sheet").innerHTML=
+    '<div class="grab"></div><h3>'+(c?t("formEdit"):t("formNew"))+'</h3>'+
+    '<label>'+t("fName")+'</label><input id="f_name" value="'+esc(v("name",""))+'" placeholder="'+t("fNamePh")+'">'+
+    '<label>'+t("fSize")+'</label><input class="mono" id="f_size" type="number" inputmode="decimal" value="'+v("size","")+'" placeholder="50000">'+
+    '<div class="row"><div><label>'+t("fTarget")+'</label><input class="mono" id="f_target" type="number" inputmode="decimal" value="'+v("targetPct","")+'" placeholder="10"></div>'+
+      '<div><label>'+t("fDaily")+'</label><input class="mono" id="f_daily" type="number" inputmode="decimal" value="'+v("dailyPct","")+'" placeholder="5"></div></div>'+
+    '<label>'+t("fOverall")+'</label><input class="mono" id="f_overall" type="number" inputmode="decimal" value="'+v("overallPct","")+'" placeholder="10">'+
+    '<label>'+t("fTradeLimit")+'</label><input class="mono" id="f_tradelimit" type="number" inputmode="numeric" value="'+v("dailyTradeLimit",2)+'" placeholder="2">'+
+    '<label>'+t("fDDType")+'</label><div class="toggle" id="f_ddtype"><button data-v="static" class="'+(v("ddType","static")==="static"?"on":"")+'">'+t("ddStatic")+'</button><button data-v="trailing" class="'+(v("ddType","static")==="trailing"?"on":"")+'">'+t("ddTrailing")+'</button></div>'+
+    '<button class="btn primary" id="saveBtn">'+(c?t("save"):t("create"))+'</button>'+
+    '<button class="btn ghost" id="cancelBtn">'+t("cancel")+'</button>';
+  document.getElementById("overlay").classList.add("open");
+  let ddType=v("ddType","static");
+  document.querySelectorAll("#f_ddtype button").forEach(b=>b.onclick=()=>{ ddType=b.dataset.v; document.querySelectorAll("#f_ddtype button").forEach(x=>x.classList.toggle("on",x===b)); });
+  document.getElementById("cancelBtn").onclick=()=>c?openDetail(id):closeOverlay();
+  document.getElementById("saveBtn").onclick=()=>{
+    const name=document.getElementById("f_name").value.trim()||"Sentinel";
+    const size=parseFloat(document.getElementById("f_size").value);
+    const targetPct=parseFloat(document.getElementById("f_target").value);
+    const dailyPct=parseFloat(document.getElementById("f_daily").value);
+    const overallPct=parseFloat(document.getElementById("f_overall").value);
+    let tradeLimit=parseInt(document.getElementById("f_tradelimit").value,10); if(isNaN(tradeLimit)||tradeLimit<1)tradeLimit=2;
+    if([size,targetPct,dailyPct,overallPct].some(x=>isNaN(x))){ alert(t("alertFields")); return; }
+    if(c){ Object.assign(c,{name,size,targetPct,dailyPct,overallPct,ddType,dailyTradeLimit:tradeLimit}); }
+    else{ state.challenges.push({id:uid(),name,size,targetPct,dailyPct,overallPct,ddType,dailyTradeLimit:tradeLimit,trades:[],dayStartEquity:size,dayStartTs:Date.now()}); }
+    save(); render(); c?openDetail(c.id):closeOverlay();
+  };
+}
+
+function closeOverlay(){ document.getElementById("overlay").classList.remove("open"); }
+document.getElementById("overlay").addEventListener("click",e=>{ if(e.target.id==="overlay") closeOverlay(); });
+
+/* INIT */
+state=loadState();
+document.documentElement.lang=lang;
+renderChrome();
+render();
+</script>
+</body>
+</html>
