@@ -291,12 +291,14 @@ function esc(s){return (s||"").replace(/[&<>"]/g,m=>({"&":"&amp;","<":"&lt;",">"
 function dt(ts){ const d=new Date(ts); return d.toLocaleDateString(lang,{day:"2-digit",month:"2-digit"})+" "+d.toLocaleTimeString(lang,{hour:"2-digit",minute:"2-digit"}); }
 
 function derive(c){ let r=c.size,p=c.size; (c.trades||[]).forEach(x=>{ r+=(x.result==="win"?x.amount:-x.amount); p=Math.max(p,r); }); return {equity:r,peak:p,pl:r-c.size}; }
-function todayCount(c){ return (c.trades||[]).filter(x=>x.ts>=c.dayStartTs).length; }
+function dayKey(ts){ const d=new Date(ts); return d.getFullYear()+"-"+d.getMonth()+"-"+d.getDate(); }
+function todayCount(c){ const tk=dayKey(Date.now()); return (c.trades||[]).filter(x=>dayKey(x.ts)===tk).length; }
 function guardian(c){
   const {equity,peak}=derive(c);
-  const sod=c.dayStartEquity!=null?c.dayStartEquity:c.size;
+  const tk=dayKey(Date.now());
+  let todayNet=0; (c.trades||[]).forEach(x=>{ if(dayKey(x.ts)===tk) todayNet+=(x.result==="win"?x.amount:-x.amount); });
   const targetEquity=c.size*(1+c.targetPct/100);
-  const todaysLoss=Math.max(0,sod-equity);
+  const todaysLoss=Math.max(0,-todayNet);
   const dailyLimit=c.size*(c.dailyPct/100);
   const dailyRoom=dailyLimit-todaysLoss;
   const ref=c.ddType==="trailing"?peak:c.size;
@@ -451,7 +453,6 @@ function openDetail(id){
     '<h2 class="section"><span>'+t("opsTitle")+'</span><span class="daycount '+(hit?"hit":"ok")+'">'+t("todayCount",tc,c.dailyTradeLimit)+'</span></h2>'+
     '<div class="tradeadd"><div class="toggle"><button class="win on" id="tgWin">Win</button><button class="loss" id="tgLoss">Loss</button></div>'+
       '<div class="addrow"><input id="t_pair" placeholder="'+t("pairPh")+'"><input id="t_amt" class="mono" type="number" inputmode="decimal" placeholder="'+t("valuePh")+'" style="flex:0 0 110px;"><button class="go" id="addTrade">+</button></div></div>'+
-    '<div style="margin:6px 0 4px;text-align:right;"><button class="daybtn" id="newDayBtn">'+t("newDay")+'</button></div>'+
     '<div>'+tradesHtml+'</div>'+
     '<h2 class="section">'+t("preTitle")+'</h2>'+
     '<div class="pretrade"><label>'+t("riskLabel")+'</label><input class="mono" id="riskIn" type="number" inputmode="decimal" placeholder="'+t("riskPh")+'"><div id="verdict"></div></div>'+
@@ -472,7 +473,6 @@ function openDetail(id){
     if(count>=c.dailyTradeLimit) showCoach(coachMsg(count,c.dailyTradeLimit));
   };
   document.querySelectorAll(".del").forEach(d=>d.onclick=()=>{ c.trades=c.trades.filter(x=>x.id!==d.dataset.tid); save(); render(); openDetail(id); });
-  document.getElementById("newDayBtn").onclick=()=>{ c.dayStartEquity=derive(c).equity; c.dayStartTs=Date.now(); save(); openDetail(id); };
   const riskIn=document.getElementById("riskIn");
   riskIn.addEventListener("input",()=>{
     const r=parseFloat(riskIn.value); const vd=document.getElementById("verdict");
